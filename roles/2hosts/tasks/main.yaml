@@ -1,0 +1,57 @@
+
+- name: Ensure Nginx is installed
+  apt:
+    name: nginx
+    state: present
+
+- name: create certs folder if it doesn't exist
+  file:
+    path: "/etc/nginx/certs"
+    state: directory
+
+- name: create www folder if it doesn't exist
+  file:
+    path: "/www"
+    state: directory
+
+- name: Copy dhparam
+  template:
+    src: copy/dhparam.pem
+    dest: /etc/nginx/certs/dhparam.pem
+
+- name: Copy crt
+  template:
+    src: copy/2hosts.crt
+    dest: /etc/nginx/certs/2hosts.crt
+
+- name: Copy key
+  template:
+    src: copy/2hosts.key
+    dest: /etc/nginx/certs/2hosts.key
+
+- name: Set permissions on key
+  file:
+    path: "/etc/nginx/certs/2hosts.key"
+    mode: u+rw,g=,o=
+
+- name: Copy index
+  template:
+    src: copy/index.html
+    dest: /www/index.html
+
+- name: Copy site config
+  template:
+    src: copy/2hosts
+    dest: /etc/nginx/sites-available/2hosts
+
+- name: Create symlink to config
+  file:
+    src: "/etc/nginx/sites-available/2hosts"
+    path: "/etc/nginx/sites-enabled/2hosts"
+    state: link
+  notify: Restart nginx
+
+- name: Ensure nginx is running
+  service:
+    name: nginx
+    state: started
