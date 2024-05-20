@@ -56,3 +56,7 @@
       path: "/etc/nginx/sites-enabled/2hosts"
       state: link
 
+  - name: Start nginx service
+    systemd:
+      name: nginx
+      state: started
